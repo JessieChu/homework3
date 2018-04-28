@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Created on Sat Apr 28 12:06:53 2018
+
+@author: jessiechu
+"""
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Apr 27 20:24:12 2018
 
 @author: jessiechu
@@ -12,7 +20,8 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 import sklearn
 from sklearn import cross_validation
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.cluster import KMeans
+from sklearn.cluster import MeanShift
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -21,7 +30,7 @@ from sklearn.metrics import classification_report
 train = pd.read_csv('./data/train.csv')
 test = pd.read_csv('./data/test.csv')
 test_label = pd.read_csv('./data/gender_submission.csv')
-result = open(r'./result/classifier_report.txt','a+')
+result = open(r'./result/cluster_report.txt','a+')
 
 
 print(train.describe())
@@ -41,7 +50,7 @@ test.loc[test['Sex'] == 'male', 'Sex'] = 0
 test.loc[test['Sex'] == 'female', 'Sex'] = 1
 #用同样的方法来对Embarked(在何处登船)来进行缺失值处理
 print(train['Embarked'].unique())#['S' 'C' 'Q' nan]
-print(test['Embarked'].unique())#['S' 'C' 'Q' nan]
+print(test['Embarked'].unique())#['S' 'C' 'Q']
 #发现这个变量也有缺失值,需要对上面的数据来进行缺失值处理
 train['Embarked'] = train['Embarked'].fillna('S')
 train.loc[train['Embarked'] == 'S', 'Embarked'] = 0
@@ -57,36 +66,29 @@ test['Survived'] = test_label[['Survived']]
 
 predictors = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
 
-rfc = RandomForestClassifier(random_state=1, n_estimators=10, min_samples_split=2, min_samples_leaf=1)
-rfc.fit(train[predictors], train['Survived'])
-rf = rfc.predict(test[predictors])
-print('RandomForestClassifier:\n',classification_report(rf,test['Survived']))
-print('RandomForestClassifier:\n',classification_report(rf,test['Survived']),file=result)
+clu_kmeans = KMeans(n_clusters=2)
+kmeans_pred = clu_kmeans.fit_predict(train[predictors])
+print('KMeans:\n',classification_report(kmeans_pred,train['Survived']))
+print('KMeans:\n',classification_report(kmeans_pred,train['Survived']), file=result)
 
-decision_tree_classifier = DecisionTreeClassifier()
-decision_tree_classifier.fit(train[predictors], train['Survived'])
-dt = decision_tree_classifier.predict(test[predictors])
-decision_tree_classifier = DecisionTreeClassifier(max_depth=4, max_features=5)
-print('DecisionTreeClassifier:\n',classification_report(dt,test['Survived']))
-print('DecisionTreeClassifier:\n',classification_report(dt,test['Survived']), file=result)
-#print(cv_scores)
+clu_mean = MeanShift()
+mean_pred = clu_mean.fit_predict(train[predictors])
+print('MeanShift:\n',classification_report(mean_pred,train['Survived']))
+print('MeanShift:\n',classification_report(mean_pred,train['Survived']),file=result)
 
-def ShowPic(name, pred_y):
-    t = pd.concat([pd.DataFrame(pred_y, columns=['Survived']), test[['Age', 'Fare']]], axis=1)
-    alive = t.loc[t['Survived'] == 1]
-    dead = t.loc[t['Survived'] == 0]
-   
+def ShowPic(name, cluster):
+    t = pd.concat([pd.DataFrame(cluster, columns=['label']), train], axis=1)
+    n = len(t['label'].unique())
+    colors = ['b','g','r','y','m','k']
     plt.title(name)
-    alive_distribute = plt.scatter(alive['Age'], alive['Fare'], c='green', marker='o')
-    dead_distribute = plt.scatter(dead['Age'], dead['Fare'], c='black', marker='x')
+    for i in range(n):
+        type = t.loc[t['label'] == i]
+        plt.scatter(type['Age'], type['Fare'], c=colors[i])
     plt.xlabel('Age')
     plt.ylabel('Fare')
-    plt.legend((alive_distribute, dead_distribute), ('survived', 'dead'), loc=1)
-    plt.savefig('./figure/classifier_result_%s.png' % name)
+    plt.savefig('./figure/cluster_result_%s.png' % name)
     plt.show()
 
-ShowPic('RandomForest',rf)
-ShowPic('DecisionTree', dt)
-
-
+ShowPic('KMeans',kmeans_pred)
+ShowPic('MeanShift', mean_pred)
 

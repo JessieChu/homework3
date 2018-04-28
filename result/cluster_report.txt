@@ -1,0 +1,20 @@
+KMeans:
+              precision    recall  f1-score   support
+
+          0       0.97      0.64      0.77       838
+          1       0.11      0.74      0.20        53
+
+avg / total       0.92      0.64      0.74       891
+
+MeanShift:
+              precision    recall  f1-score   support
+
+          0       0.87      0.68      0.76       704
+          1       0.22      0.57      0.31       130
+          2       0.00      0.00      0.00        37
+          3       0.00      0.00      0.00        15
+          4       0.00      0.00      0.00         3
+          5       0.00      0.00      0.00         2
+
+avg / total       0.72      0.62      0.65       891
+
