@@ -6,25 +6,10 @@ Created on Sat Apr 28 12:06:53 2018
 @author: jessiechu
 """
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 27 20:24:12 2018
-
-@author: jessiechu
-"""
-
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sb
-import sklearn
-from sklearn import cross_validation
 from sklearn.cluster import KMeans
 from sklearn.cluster import MeanShift
-from sklearn.cross_validation import cross_val_score
-from sklearn.cross_validation import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import classification_report
 
 train = pd.read_csv('./data/train.csv')
